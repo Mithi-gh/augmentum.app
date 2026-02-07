@@ -1,38 +1,398 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Augmentum Haptics Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #000;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+        .phone-frame {
+            width: 100%;
+            max-width: 375px;
+            background: #fff;
+            border-radius: 30px;
+            padding: 40px 20px 30px;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+            position: relative;
+        }
 
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="/">
+        .scenarios-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
 
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+        .scenario-btn {
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
 
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="augmentum_haptics">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+        .scenario-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+        .scenario-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
-  <title>augmentum_haptics</title>
-  <link rel="manifest" href="manifest.json">
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            flex: 1;
+            border: none;
+            border-radius: 25px;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .back-btn {
+            background: #d32f2f;
+            color: #fff;
+        }
+
+        .back-btn:active {
+            background: #b71c1c;
+            transform: scale(0.98);
+        }
+
+        .next-btn, .yes-btn {
+            background: #000;
+            color: #fff;
+        }
+
+        .next-btn:active, .yes-btn:active {
+            background: #333;
+            transform: scale(0.98);
+        }
+
+        .no-btn {
+            background: #d32f2f;
+            color: #fff;
+        }
+
+        .no-btn:active {
+            background: #b71c1c;
+        }
+
+        .intro-screen {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .intro-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 40px;
+            line-height: 1.3;
+        }
+
+        .status-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .status-indicator.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 400px) {
+            .phone-frame {
+                max-width: 100%;
+                padding: 30px 15px 20px;
+            }
+            
+            .scenario-btn {
+                padding: 14px 28px;
+                font-size: 15px;
+            }
+            
+            .nav-btn {
+                padding: 14px 28px;
+                font-size: 15px;
+            }
+            
+            .intro-title {
+                font-size: 22px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+    <div class="phone-frame">
+        <!-- Intro Screen -->
+        <div id="introScreen" class="intro-screen">
+            <div class="intro-title">Test Vibrations for Augmentum App</div>
+            <div class="button-group">
+                <button class="nav-btn no-btn" onclick="window.close()">No</button>
+                <button class="nav-btn yes-btn" onclick="startTest()">Yes</button>
+            </div>
+        </div>
+
+        <!-- Page 1: Scenarios 1-6 -->
+        <div id="page1" class="scenarios-container hidden">
+            <button class="scenario-btn" onclick="playScenario(1)">Scenario 1</button>
+            <button class="scenario-btn" onclick="playScenario(2)">Scenario 2</button>
+            <button class="scenario-btn" onclick="playScenario(3)">Scenario 3</button>
+            <button class="scenario-btn" onclick="playScenario(4)">Scenario 4</button>
+            <button class="scenario-btn" onclick="playScenario(5)">Scenario 5</button>
+            <button class="scenario-btn" onclick="playScenario(6)">Scenario 6</button>
+            
+            <div class="button-group">
+                <button class="nav-btn back-btn" onclick="goToIntro()">Back</button>
+                <button class="nav-btn next-btn" onclick="goToPage2()">Next</button>
+            </div>
+        </div>
+
+        <!-- Page 2: Scenarios 7-12 -->
+        <div id="page2" class="scenarios-container hidden">
+            <button class="scenario-btn" onclick="playScenario(7)">Scenario 7</button>
+            <button class="scenario-btn" onclick="playScenario(8)">Scenario 8</button>
+            <button class="scenario-btn" onclick="playScenario(9)">Scenario 9</button>
+            <button class="scenario-btn" onclick="playScenario(10)">Scenario 10</button>
+            <button class="scenario-btn" onclick="playScenario(11)">Scenario 11</button>
+            <button class="scenario-btn" onclick="playScenario(12)">Scenario 12</button>
+            
+            <div class="button-group">
+                <button class="nav-btn back-btn" onclick="goToPage1()">Back</button>
+                <button class="nav-btn next-btn" onclick="goToIntro()">Finish</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="statusIndicator" class="status-indicator">Playing haptic...</div>
+
+    <script>
+        let isPlaying = false;
+
+        // Navigation functions
+        function startTest() {
+            document.getElementById('introScreen').classList.add('hidden');
+            document.getElementById('page1').classList.remove('hidden');
+        }
+
+        function goToIntro() {
+            document.getElementById('page1').classList.add('hidden');
+            document.getElementById('page2').classList.add('hidden');
+            document.getElementById('introScreen').classList.remove('hidden');
+        }
+
+        function goToPage1() {
+            document.getElementById('page2').classList.add('hidden');
+            document.getElementById('page1').classList.remove('hidden');
+        }
+
+        function goToPage2() {
+            document.getElementById('page1').classList.add('hidden');
+            document.getElementById('page2').classList.remove('hidden');
+        }
+
+        // Show status indicator
+        function showStatus(message) {
+            const indicator = document.getElementById('statusIndicator');
+            indicator.textContent = message;
+            indicator.classList.add('active');
+            setTimeout(() => {
+                indicator.classList.remove('active');
+            }, 2000);
+        }
+
+        // Haptic patterns from research specification
+        async function playScenario(scenarioId) {
+            if (isPlaying) return;
+            if (!navigator.vibrate) {
+                alert('Vibration not supported on this device/browser. Please use Android Chrome.');
+                return;
+            }
+
+            isPlaying = true;
+            disableAllButtons();
+            showStatus(`Playing Scenario ${scenarioId}...`);
+
+            try {
+                // Alert Primer (120ms, Firm)
+                await vibrate(120);
+                
+                // Processing Gap
+                const gap = (scenarioId === 6 || scenarioId === 12) ? 900 : 700;
+                await sleep(gap);
+                
+                // Main Cue (based on scenario)
+                await playMainCue(scenarioId);
+                
+            } catch (error) {
+                console.error('Haptic error:', error);
+            } finally {
+                isPlaying = false;
+                enableAllButtons();
+            }
+        }
+
+        async function playMainCue(scenarioId) {
+            switch(scenarioId) {
+                case 1: // Left Turn
+                    await playLeftTurn();
+                    break;
+                case 2: // Right Turn
+                    await playRightTurn();
+                    break;
+                case 3: // Continue
+                case 10: // False Friend (Continue)
+                    await playContinue();
+                    break;
+                case 4: // Late Notice Turn (randomized)
+                    if (Math.random() > 0.5) {
+                        await playLeftTurn();
+                    } else {
+                        await playRightTurn();
+                    }
+                    break;
+                case 5: // Hazard
+                case 9: // Missed Turn (Attention)
+                case 11: // Late Alert (Attention)
+                    await playAttention();
+                    break;
+                case 6: // Arrival
+                case 12: // Final Arrival
+                    await playArrival();
+                    break;
+                case 7: // Right Turn with Traffic
+                    await playRightTurn();
+                    break;
+                case 8: // Complex Junction (Continue → 2s → Left)
+                    await playContinue();
+                    await sleep(2000);
+                    await playLeftTurn();
+                    break;
+            }
+        }
+
+        // Left Turn: ON 220ms → OFF 280ms → ON 220ms → OFF 580ms (3x)
+        async function playLeftTurn() {
+            for (let i = 0; i < 3; i++) {
+                await vibrate([220, 280, 220]);
+                await sleep(580);
+            }
+        }
+
+        // Right Turn: ON 500ms → OFF 580ms (3x)
+        async function playRightTurn() {
+            for (let i = 0; i < 3; i++) {
+                await vibrate(500);
+                await sleep(580);
+            }
+        }
+
+        // Continue: ON 180ms → OFF 850ms (3x)
+        async function playContinue() {
+            for (let i = 0; i < 3; i++) {
+                await vibrate(180);
+                await sleep(850);
+            }
+        }
+
+        // Attention/Hazard: ON 120ms → OFF 120ms → ON 300ms → OFF 450ms → ON 120ms (3x)
+        async function playAttention() {
+            for (let i = 0; i < 3; i++) {
+                await vibrate([120, 120, 300, 450, 120]);
+                if (i < 2) await sleep(200); // Gap between loops
+            }
+        }
+
+        // Arrival: ON 1100ms → OFF 1000ms (2x)
+        async function playArrival() {
+            for (let i = 0; i < 2; i++) {
+                await vibrate(1100);
+                if (i < 1) await sleep(1000);
+            }
+        }
+
+        // Helper functions
+        function vibrate(pattern) {
+            return new Promise((resolve) => {
+                navigator.vibrate(pattern);
+                const duration = Array.isArray(pattern) 
+                    ? pattern.reduce((a, b) => a + b, 0)
+                    : pattern;
+                setTimeout(resolve, duration);
+            });
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function disableAllButtons() {
+            document.querySelectorAll('.scenario-btn').forEach(btn => {
+                btn.disabled = true;
+            });
+        }
+
+        function enableAllButtons() {
+            document.querySelectorAll('.scenario-btn').forEach(btn => {
+                btn.disabled = false;
+            });
+        }
+
+        // Log device info
+        console.log('Device:', navigator.userAgent);
+        console.log('Vibration API supported:', !!navigator.vibrate);
+    </script>
 </body>
 </html>
